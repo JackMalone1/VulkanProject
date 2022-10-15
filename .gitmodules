@@ -1,0 +1,3 @@
+[submodule "VulanProject/Externals/spdlog"]
+	path = VulanProject/Externals/spdlog
+	url = https://github.com/gabime/spdlog

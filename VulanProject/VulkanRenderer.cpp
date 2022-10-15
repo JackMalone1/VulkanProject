@@ -1,7 +1,6 @@
 #include "VulkanRenderer.h"
 
 
-
 VulkanRenderer::VulkanRenderer()
 {
 }
@@ -10,15 +9,17 @@ int VulkanRenderer::init(GLFWwindow* newWindow)
 {
 	window = newWindow;
 
-	try {
+	try
+	{
 		createInstance();
 		createDebugCallback();
 		createSurface();
 		getPhysicalDevice();
 		createLogicalDevice();
 	}
-	catch (const std::runtime_error& e) {
-		printf("ERROR: %s\n", e.what());
+	catch (const std::runtime_error& e)
+	{
+		VULKAN_CORE_ERROR(e.what());
 		return EXIT_FAILURE;
 	}
 
@@ -41,6 +42,27 @@ VulkanRenderer::~VulkanRenderer()
 {
 }
 
+void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& create_info)
+{
+	create_info = {};
+	create_info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+	create_info.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+		VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+	create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+		VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+	create_info.pfnUserCallback = instanceCreationDestructionDebugCallback;
+}
+
+void VulkanRenderer::create_app_info(VkApplicationInfo& appInfo)
+{
+	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+	appInfo.pApplicationName = "Vulkan App";
+	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+	appInfo.pEngineName = "No Engine";
+	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+	appInfo.apiVersion = VK_API_VERSION_1_0;
+}
+
 void VulkanRenderer::createInstance()
 {
 	if (validationEnabled && !checkValidationLayerSupport())
@@ -49,21 +71,16 @@ void VulkanRenderer::createInstance()
 	}
 
 	VkApplicationInfo appInfo = {};
-	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	appInfo.pApplicationName = "Vulkan App";
-	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-	appInfo.pEngineName = "No Engine";
-	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-	appInfo.apiVersion = VK_API_VERSION_1_0;
+	create_app_info(appInfo);
 
 	VkInstanceCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	createInfo.pApplicationInfo = &appInfo;
 
-	std::vector<const char*> instanceExtensions = std::vector<const char*>();
+	auto instanceExtensions = std::vector<const char*>();
 
 	uint32_t glfwExtensionCount = 0;
-	const char** glfwExtensions;	
+	const char** glfwExtensions;
 
 	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
@@ -84,11 +101,13 @@ void VulkanRenderer::createInstance()
 
 	createInfo.enabledExtensionCount = static_cast<uint32_t>(instanceExtensions.size());
 	createInfo.ppEnabledExtensionNames = instanceExtensions.data();
-
+	VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 	if (validationEnabled)
 	{
 		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
 		createInfo.ppEnabledLayerNames = validationLayers.data();
+		populateDebugMessengerCreateInfo(debugCreateInfo);
+		createInfo.pNext = &debugCreateInfo;
 	}
 	else
 	{
@@ -106,7 +125,7 @@ void VulkanRenderer::createInstance()
 
 void VulkanRenderer::createDebugCallback()
 {
-	if (!validationEnabled) return;
+	if constexpr (!validationEnabled) return;
 
 	VkDebugReportCallbackCreateInfoEXT callbackCreateInfo = {};
 	callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
@@ -118,14 +137,15 @@ void VulkanRenderer::createDebugCallback()
 	{
 		throw std::runtime_error("Failed to create Debug Callback!");
 	}
+	VULKAN_CORE_INFO("Succesfully created debug callback");
 }
 
 void VulkanRenderer::createLogicalDevice()
 {
-	QueueFamilyIndices indices = getQueueFamilies(mainDevice.physicalDevice);
+	const QueueFamilyIndices indices = getQueueFamilies(mainDevice.physicalDevice);
 
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-	std::set<int> queueFamilyIndices = { indices.graphicsFamily, indices.presentationFamily };
+	std::set<int> queueFamilyIndices = {indices.graphicsFamily, indices.presentationFamily};
 
 	for (int queueFamilyIndex : queueFamilyIndices)
 	{
@@ -162,12 +182,17 @@ void VulkanRenderer::createLogicalDevice()
 
 void VulkanRenderer::createSurface()
 {
-	VkResult result = glfwCreateWindowSurface(instance, window, nullptr, &surface);
+	const VkResult result = glfwCreateWindowSurface(instance, window, nullptr, &surface);
 
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create a surface!");
 	}
+}
+
+void VulkanRenderer::createSwapChain()
+{
+	SwapChainDetails swap_chain_details = getSwapChainDetails(mainDevice.physicalDevice);
 }
 
 void VulkanRenderer::getPhysicalDevice()
@@ -188,9 +213,32 @@ void VulkanRenderer::getPhysicalDevice()
 		if (checkDeviceSuitable(device))
 		{
 			mainDevice.physicalDevice = device;
+			VULKAN_CORE_INFO("Found a suitable physical device to use");
 			break;
 		}
 	}
+}
+
+bool VulkanRenderer::check_extension_support(std::vector<VkExtensionProperties> extensions,
+                                             const std::vector<const char*>::value_type& checkExtension)
+{
+	bool hasExtension = false;
+	for (const auto& extension : extensions)
+	{
+		if (strcmp(checkExtension, extension.extensionName) == 0)
+		{
+			hasExtension = true;
+			VULKAN_CORE_TRACE("Can support given extension");
+			break;
+		}
+	}
+
+	if (!hasExtension)
+	{
+		VULKAN_CORE_WARN("Can't support given extension");
+		return false;
+	}
+	return true;
 }
 
 bool VulkanRenderer::checkInstanceExtensionSupport(std::vector<const char*>* checkExtensions)
@@ -203,20 +251,7 @@ bool VulkanRenderer::checkInstanceExtensionSupport(std::vector<const char*>* che
 
 	for (const auto& checkExtension : *checkExtensions)
 	{
-		bool hasExtension = false;
-		for (const auto& extension : extensions)
-		{
-			if (strcmp(checkExtension, extension.extensionName) == 0)
-			{
-				hasExtension = true;
-				break;
-			}
-		}
-
-		if (!hasExtension)
-		{
-			return false;
-		}
+		if (!check_extension_support(extensions, checkExtension)) return false;
 	}
 
 	return true;
@@ -229,6 +264,7 @@ bool VulkanRenderer::checkDeviceExtensionSupport(VkPhysicalDevice device)
 
 	if (extensionCount == 0)
 	{
+		VULKAN_CORE_WARN("No extensions found that the physical device can support");
 		return false;
 	}
 
@@ -238,20 +274,7 @@ bool VulkanRenderer::checkDeviceExtensionSupport(VkPhysicalDevice device)
 	// Check for extension
 	for (const auto& deviceExtension : deviceExtensions)
 	{
-		bool hasExtension = false;
-		for (const auto& extension : extensions)
-		{
-			if (strcmp(deviceExtension, extension.extensionName) == 0)
-			{
-				hasExtension = true;
-				break;
-			}
-		}
-
-		if (!hasExtension)
-		{
-			return false;
-		}
+		if (!check_extension_support(extensions, deviceExtension)) return false;
 	}
 
 	return true;
@@ -262,7 +285,7 @@ bool VulkanRenderer::checkValidationLayerSupport()
 	uint32_t validationLayerCount;
 	vkEnumerateInstanceLayerProperties(&validationLayerCount, nullptr);
 
-	if (validationLayerCount == 0 && validationLayers.size() > 0)
+	if (validationLayerCount == 0 && !validationLayers.empty())
 	{
 		return false;
 	}
@@ -295,16 +318,16 @@ bool VulkanRenderer::checkDeviceSuitable(VkPhysicalDevice device)
 {
 	QueueFamilyIndices indices = getQueueFamilies(device);
 
-	bool extensionsSupported = checkDeviceExtensionSupport(device);
+	const bool extensions_supported = checkDeviceExtensionSupport(device);
 
-	bool swapChainValid = false;
-	if (extensionsSupported)
+	bool swap_chain_valid = false;
+	if (extensions_supported)
 	{
-		SwapChainDetails swapChainDetails = getSwapChainDetails(device);
-		swapChainValid = !swapChainDetails.presentationModes.empty() && !swapChainDetails.formats.empty();
+		const SwapChainDetails swap_chain_details = getSwapChainDetails(device);
+		swap_chain_valid = !swap_chain_details.presentationModes.empty() && !swap_chain_details.formats.empty();
 	}
 
-	return indices.isValid() && extensionsSupported && swapChainValid;
+	return indices.isValid() && extensions_supported && swap_chain_valid;
 }
 
 QueueFamilyIndices VulkanRenderer::getQueueFamilies(VkPhysicalDevice device)
@@ -365,7 +388,8 @@ SwapChainDetails VulkanRenderer::getSwapChainDetails(VkPhysicalDevice device)
 	if (presentationCount != 0)
 	{
 		swapChainDetails.presentationModes.resize(presentationCount);
-		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentationCount, swapChainDetails.presentationModes.data());
+		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentationCount,
+		                                          swapChainDetails.presentationModes.data());
 	}
 
 	return swapChainDetails;

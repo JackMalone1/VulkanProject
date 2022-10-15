@@ -34,16 +34,19 @@ private:
 	VkQueue presentationQueue;
 	VkSurfaceKHR surface;
 
-
+	void create_app_info(VkApplicationInfo& appInfo);
 	// Vulkan Functions
 	// - Create Functions
 	void createInstance();
 	void createDebugCallback();
 	void createLogicalDevice();
 	void createSurface();
+	void createSwapChain();
 
 	// - Get Functions
 	void getPhysicalDevice();
+	bool check_extension_support(std::vector<VkExtensionProperties> extensions,
+	               const std::vector<const char*>::value_type& checkExtension);
 
 	// - Support Functions
 	// -- Checker Functions

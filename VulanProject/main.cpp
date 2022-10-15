@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
-
+#include "Log.h"
 #include "VulkanRenderer.h"
 
 GLFWwindow* window;
@@ -21,6 +21,8 @@ void initWindow(std::string wName = "Test Window", const int width = 800, const 
 
 int main()
 {
+	Log::init();
+	VULKAN_CORE_TRACE("Creating vulkan {}", "app");
 	initWindow();
 
 	if (vulkanRenderer.init(window) == EXIT_FAILURE)

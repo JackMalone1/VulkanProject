@@ -88,7 +88,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>;$(ProjectDir)Externals/glfw/include;$(ProjectDir)Externals/glm/glm;$(ProjectDir)Externals/glm;E:\Vulkan\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>;$(ProjectDir)Externals/glfw/include;$(ProjectDir)Externals/glm/glm;$(ProjectDir)Externals/glm;E:\Vulkan\Include;$(ProjectDir)Externals\spdlog\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -106,7 +106,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>;$(ProjectDir)Externals/glfw/include;$(ProjectDir)Externals/glm/glm;$(ProjectDir)Externals/glm;E:\Vulkan\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>;$(ProjectDir)Externals/glfw/include;$(ProjectDir)Externals/glm/glm;$(ProjectDir)Externals/glm;E:\Vulkan\Include;$(ProjectDir)Externals\spdlog\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -124,7 +124,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>;$(ProjectDir)Externals/glfw/include;$(ProjectDir)Externals/glm/glm;$(ProjectDir)Externals/glm;E:\Vulkan\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>;$(ProjectDir)Externals/glfw/include;$(ProjectDir)Externals/glm/glm;$(ProjectDir)Externals/glm;E:\Vulkan\Include;$(ProjectDir)Externals\spdlog\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -142,7 +142,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Externals/glfw/include;$(ProjectDir)Externals/glm/glm;%(AdditionalIncludeDirectories);$(ProjectDir)Externals/glfw/include;$(ProjectDir)Externals/glm/glm;$(ProjectDir)Externals/glm;E:\Vulkan\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Externals/glfw/include;$(ProjectDir)Externals/glm/glm;%(AdditionalIncludeDirectories);$(ProjectDir)Externals/glfw/include;$(ProjectDir)Externals/glm/glm;$(ProjectDir)Externals/glm;E:\Vulkan\Include;$(ProjectDir)Externals\spdlog\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -155,10 +155,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="VulkanRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Log.h" />
     <ClInclude Include="Utilities.h" />
     <ClInclude Include="VulkanRenderer.h" />
     <ClInclude Include="VulkanValidation.h" />
