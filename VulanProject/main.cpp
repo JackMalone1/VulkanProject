@@ -19,6 +19,7 @@ void initWindow(std::string wName = "Test Window", const int width = 800, const 
 	window = glfwCreateWindow(width, height, wName.c_str(), nullptr, nullptr);
 }
 
+
 int main()
 {
 	Log::init();
@@ -34,7 +35,6 @@ int main()
 	{
 		glfwPollEvents();
 	}
-
 	vulkanRenderer.cleanup();
 	glfwDestroyWindow(window);
 	glfwTerminate();

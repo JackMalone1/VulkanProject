@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <vector>
 #include <set>
+#include <algorithm>
 
 #include "VulkanValidation.h"
 #include "Utilities.h"
@@ -19,7 +20,6 @@ public:
 	void cleanup();
 
 	~VulkanRenderer();
-
 private:
 	GLFWwindow* window;
 
@@ -33,6 +33,7 @@ private:
 	VkQueue graphicsQueue;
 	VkQueue presentationQueue;
 	VkSurfaceKHR surface;
+	VkSwapchainKHR swapchain;
 
 	void create_app_info(VkApplicationInfo& appInfo);
 	// Vulkan Functions
@@ -59,5 +60,8 @@ private:
 	QueueFamilyIndices getQueueFamilies(VkPhysicalDevice device);
 	SwapChainDetails getSwapChainDetails(VkPhysicalDevice device);
 
+	VkSurfaceFormatKHR chooseBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& formats);
+	VkPresentModeKHR chooseBestPresentationMode(const std::vector<VkPresentModeKHR>& presentationModes);
+	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& surfaceCabalities);
 };
 

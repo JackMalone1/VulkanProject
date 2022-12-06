@@ -4,10 +4,9 @@ const std::vector<const char*> deviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
-// Indices (locations) of Queue Families (if they exist at all)
 struct QueueFamilyIndices {
-	int graphicsFamily = -1;			// Location of Graphics Queue Family
-	int presentationFamily = -1;		// Location of Presentation Queue Family
+	int graphicsFamily = -1;	
+	int presentationFamily = -1;
 
 	// Check if queue families are valid
 	bool isValid()
@@ -17,7 +16,7 @@ struct QueueFamilyIndices {
 };
 
 struct SwapChainDetails {
-	VkSurfaceCapabilitiesKHR surfaceCapabilities;		// Surface properties, e.g. image size/extent
-	std::vector<VkSurfaceFormatKHR> formats;			// Surface image formats, e.g. RGBA and size of each colour
-	std::vector<VkPresentModeKHR> presentationModes;	// How images should be presented to screen
+	VkSurfaceCapabilitiesKHR surfaceCapabilities;	
+	std::vector<VkSurfaceFormatKHR> formats;		
+	std::vector<VkPresentModeKHR> presentationModes;
 };
