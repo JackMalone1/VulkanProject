@@ -77,6 +77,5 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL instanceCreationDestructionDebugCallback(
 		VULKAN_CORE_WARN(pCallbackData->pMessage);
 	}
 
-
 	return VK_FALSE;
 }
