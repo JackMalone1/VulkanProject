@@ -11,12 +11,12 @@
 
 #include "VulkanValidation.h"
 #include "Utilities.h"
+#include "Mesh.h"
 
 class VulkanRenderer
 {
 public:
 	VulkanRenderer();
-
 	int init(GLFWwindow* newWindow);
 	void draw();
 	void cleanup();
@@ -25,6 +25,10 @@ public:
 private:
 	GLFWwindow* window;
 
+	int currentFrame = 0;
+
+	Mesh firstMesh;
+	
 	VkInstance instance;
 	VkDebugReportCallbackEXT callback;
 	struct {
@@ -49,8 +53,9 @@ private:
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
 
-	VkSemaphore imageAvailable;
-	VkSemaphore renderFinished;
+	std::vector<VkSemaphore> imageAvailable;
+	std::vector<VkSemaphore> renderFinished;
+	std::vector<VkFence> drawFences;
 
 	void create_app_info(VkApplicationInfo& appInfo);
 

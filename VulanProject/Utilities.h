@@ -1,9 +1,18 @@
 #pragma once
 
 #include <fstream>
+#include <glm/glm.hpp>
+
+const int MAX_FRAME_DRAWS = 2;
 
 const std::vector<const char*> deviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
+
+struct Vertex
+{
+	glm::vec3 pos;
+	glm::vec3 col;
 };
 
 struct QueueFamilyIndices {

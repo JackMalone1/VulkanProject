@@ -34,7 +34,14 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
-		vulkanRenderer.draw();
+		try
+		{
+			vulkanRenderer.draw();
+		}
+		catch (std::runtime_error& e)
+		{
+			VULKAN_CORE_ERROR(e.what());
+		}
 	}
 	vulkanRenderer.cleanup();
 	glfwDestroyWindow(window);
