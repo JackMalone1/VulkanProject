@@ -1,6 +1,9 @@
 #pragma once
 
 #include <fstream>
+
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
 const int MAX_FRAME_DRAWS = 2;
@@ -51,4 +54,49 @@ static std::vector<char> readFile(const std::string& filename)
 	file.read(fileBuffer.data(), fileSize);
 	file.close();
 	return fileBuffer;
+}
+
+static uint32_t findMemoryTypeIndex(VkPhysicalDevice physicalDevice, uint32_t allowedTypes, VkMemoryPropertyFlags properties)
+{
+	VkPhysicalDeviceMemoryProperties memoryProperties;
+	vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
+
+	for(uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++)
+	{
+		if((allowedTypes & (1 << i)) && (memoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
+		{
+			return i;
+		}
+	}
+}
+
+static void createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, VkBufferUsageFlags buffer_usage_flags,
+	VkMemoryPropertyFlags bufferProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory)
+{
+	VkBufferCreateInfo bufferInfo = {};
+	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferInfo.size = bufferSize;
+	bufferInfo.usage = buffer_usage_flags;
+	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+	VkResult result = vkCreateBuffer(device, &bufferInfo, nullptr, buffer);
+	if(result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create a vertex buffer");
+	}
+
+	VkMemoryRequirements memoryRequirements;
+	vkGetBufferMemoryRequirements(device, *buffer, &memoryRequirements);
+
+	VkMemoryAllocateInfo memoryAllocInfo = {};
+	memoryAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	memoryAllocInfo.allocationSize = memoryRequirements.size;
+	memoryAllocInfo.memoryTypeIndex = findMemoryTypeIndex(physicalDevice, memoryRequirements.memoryTypeBits,
+		bufferProperties);
+	result = vkAllocateMemory(device, &memoryAllocInfo, nullptr, bufferMemory);
+	if(result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to allocate vertex buffer memory");
+	}
+	vkBindBufferMemory(device, *buffer, *bufferMemory, 0);
 }
